@@ -439,3 +439,37 @@ bool Info::GetLatestDetachTime(time_t& t) const
    t =  m_store.m_astats[entry].DetachTime;
    return true;
 }
+
+bool Info::GetAvgDetachTime(time_t& t) const
+{
+   if (! m_store.m_accessCnt) return false;
+
+   size_t entry = std::min(m_store.m_accessCnt, m_maxNumAccess) - 1;
+
+   time_t last_time;
+
+   int take_n_latest;
+   int access_count;
+
+   if (entry > 6) {
+      take_n_latest = 6;
+      access_count = 6;
+   }
+   else  {
+      take_n_latest = entry;
+      access_count = entry;
+   }
+         
+   last_time = m_store.m_astats[entry - take_n_latest].DetachTime;
+
+   for(size_t it = entry - take_n_latest ; it !=  entry ; ++it){
+
+     t += (last_time - m_store.m_astats[it].DetachTime);
+     last_time =  m_store.m_astats[it].DetachTime;
+
+   }
+
+   t = t/access_count;
+
+   return true;
+}

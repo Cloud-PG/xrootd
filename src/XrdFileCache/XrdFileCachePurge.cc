@@ -118,9 +118,12 @@ void FillFileMapRecurse(XrdOssDF* iOssDF, const std::string& path, FPurgeState& 
             if ((open_rs = fh->Open(np.c_str(), O_RDONLY, 0600, env)) == XrdOssOK && cinfo.Read(fh, np))
             {
                time_t accessTime;
+               time_t avgTime;
                if (cinfo.GetLatestDetachTime(accessTime))
                {
+                  cinfo.GetAvgDetachTime(avgTime);
                   // TRACE(Dump, "FillFileMapRecurse() checking " << buff << " accessTime  " << accessTime);
+                  TRACE(Debug, "GetAvgDetachTime() = " << avgTime << ".");
                   purgeState.checkFile(np, cinfo.GetNDownloadedBytes(), accessTime);
                }
                else
