@@ -48,7 +48,7 @@ public:
          flist.push_back(FS(iPath, iNBytes, iTime));
          nBytesAccum += iNBytes;
       }
-      else if (nBytesAccum < nBytesReq || ( ! fmap.empty() && iTime < fmap.rbegin()->first))
+      else if (nBytesAccum < nBytesReq || ( ! fmap.empty() && iTime > fmap.rbegin()->first))
       {
          fmap.insert(std::make_pair(iTime, FS(iPath, iNBytes, iTime)));
          nBytesAccum += iNBytes;
@@ -118,12 +118,17 @@ void FillFileMapRecurse(XrdOssDF* iOssDF, const std::string& path, FPurgeState& 
             if ((open_rs = fh->Open(np.c_str(), O_RDONLY, 0600, env)) == XrdOssOK && cinfo.Read(fh, np))
             {
                time_t accessTime;
-               time_t avgTime;
+               double avgTime;
                if (cinfo.GetLatestDetachTime(accessTime))
                {
                   cinfo.GetAvgDetachTime(avgTime);
                   // TRACE(Dump, "FillFileMapRecurse() checking " << buff << " accessTime  " << accessTime);
-                  TRACE(Debug, "GetAvgDetachTime() = " << avgTime << ".");
+                  TRACE(Info, "Name() = " << np.c_str() << ".");
+                  TRACE(Info, "GetAvgDetachTime() = " << avgTime << ".");
+                  TRACE(Info, "SizeOnDisk() = " << cinfo.GetNDownloadedBytes() << ".");
+                  TRACE(Info, "NAccesses() = " << cinfo.GetAccessCnt() << ".");
+                  accessTime = static_cast<time_t>(avgTime+cinfo.GetNDownloadedBytes()*1.0/(cinfo.GetAccessCnt()*cinfo.GetAccessCnt()) ) ;
+                  TRACE(Info, "accessTime() = " << accessTime << ".");
                   purgeState.checkFile(np, cinfo.GetNDownloadedBytes(), accessTime);
                }
                else

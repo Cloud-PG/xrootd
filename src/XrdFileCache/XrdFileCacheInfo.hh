@@ -203,7 +203,7 @@ public:
    //---------------------------------------------------------------------
    //! Get average detach time
    //---------------------------------------------------------------------
-   bool GetAvgDetachTime(time_t& t) const;
+   bool GetAvgDetachTime(double& t) const;
 
    //---------------------------------------------------------------------
    //! Get prefetch buffer size

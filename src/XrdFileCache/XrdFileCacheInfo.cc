@@ -440,13 +440,14 @@ bool Info::GetLatestDetachTime(time_t& t) const
    return true;
 }
 
-bool Info::GetAvgDetachTime(time_t& t) const
+bool Info::GetAvgDetachTime(double& t) const
 {
    if (! m_store.m_accessCnt) return false;
 
-   size_t entry = std::min(m_store.m_accessCnt, m_maxNumAccess) - 1;
+   size_t entry = std::min(m_store.m_accessCnt, m_maxNumAccess);
 
    time_t last_time;
+   time_t delta_time=0;
 
    int take_n_latest;
    int access_count;
@@ -457,19 +458,23 @@ bool Info::GetAvgDetachTime(time_t& t) const
    }
    else  {
       take_n_latest = entry;
-      access_count = entry;
+      access_count = 6;
    }
          
    last_time = m_store.m_astats[entry - take_n_latest].DetachTime;
 
+   TRACE(Info, "Entries:" << entry ); 
+
    for(size_t it = entry - take_n_latest ; it !=  entry ; ++it){
 
-     t += (last_time - m_store.m_astats[it].DetachTime);
+     delta_time += (m_store.m_astats[it].DetachTime - last_time);
      last_time =  m_store.m_astats[it].DetachTime;
 
    }
 
-   t = t/access_count;
+   t = static_cast<double>(delta_time);
+
+   t = t*1.0/access_count;
 
    return true;
 }
