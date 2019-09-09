@@ -48,7 +48,7 @@ public:
          flist.push_back(FS(iPath, iNBytes, iTime));
          nBytesAccum += iNBytes;
       }
-      else if (nBytesAccum < nBytesReq || ( ! fmap.empty() && iTime > fmap.rbegin()->first))
+      else if (nBytesAccum < nBytesReq || ( ! fmap.empty() && iTime < fmap.rbegin()->first))
       {
          fmap.insert(std::make_pair(iTime, FS(iPath, iNBytes, iTime)));
          nBytesAccum += iNBytes;
@@ -379,7 +379,7 @@ void Cache::Purge()
                ++deleted_file_count;
 
                oss->Unlink(dataPath.c_str());
-               TRACE(Dump, trc_pfx << "Removed file: '" << dataPath << "' size: " << it->second.nBytes << ", time: " << it->first);
+               TRACE(Debug, trc_pfx << "Removed file: '" << dataPath << "' size: " << it->second.nBytes << ", time: " << it->first);
             }
          }
          if (protected_cnt > 0)
